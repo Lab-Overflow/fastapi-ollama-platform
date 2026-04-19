@@ -1,0 +1,30 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_NUM_PARALLEL=4
+      - OLLAMA_KEEP_ALIVE=30m
+    restart: unless-stopped
+
+  api:
+    build: .
+    container_name: fastapi-ollama-api
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - CHAT_MODEL=qwen3:8b
+      - EMBED_MODEL=nomic-embed-text
+      - EXTRACT_MODEL=qwen3:8b
+      - MAX_CONCURRENCY=4
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:

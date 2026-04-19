@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 1. Pull models used by the MVP
+# 1. Pull the default production models
 ollama pull qwen3:8b
 ollama pull nomic-embed-text
 

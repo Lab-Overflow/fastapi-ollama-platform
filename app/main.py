@@ -26,9 +26,13 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="FastAPI + Ollama MVP",
-    version="0.1.0",
-    description="Local LLM backend covering streaming chat, RAG and structured extraction.",
+    title="FastAPI + Ollama Platform",
+    version="1.0.0",
+    description=(
+        "Production-grade local LLM backend: streaming chat, retrieval-augmented "
+        "generation and schema-constrained structured extraction, served behind "
+        "an async concurrency-controlled Ollama client."
+    ),
     lifespan=lifespan,
 )
 

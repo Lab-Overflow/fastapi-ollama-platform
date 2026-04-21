@@ -1,0 +1,13 @@
+{
+  "name": "fastapi-ollama-launcher",
+  "version": "1.0.0",
+  "private": true,
+  "description": "One-click launcher for FastAPI + Ollama",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/start.mjs",
+    "start:local": "node scripts/start.mjs --mode local",
+    "start:docker": "node scripts/start.mjs --mode docker",
+    "start:config": "node scripts/start.mjs --config startup.config.json"
+  }
+}

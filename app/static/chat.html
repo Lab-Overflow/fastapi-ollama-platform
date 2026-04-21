@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ollama Task Chat Console</title>
+    <link rel="stylesheet" href="/static/chat.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <p class="eyebrow">FASTAPI + OLLAMA</p>
+          <h1>Task Execution Console</h1>
+        </div>
+        <div class="controls">
+          <label>
+            <span>Model</span>
+            <select id="model-select"></select>
+          </label>
+          <label class="session-box">
+            <span>Session</span>
+            <input id="session-input" type="text" placeholder="session_id" />
+          </label>
+          <button id="load-session-btn" class="secondary-btn">Load</button>
+          <button id="new-session-btn" class="secondary-btn">New Session</button>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="panel conversation-panel">
+          <div class="panel-header">
+            <h2>Conversation</h2>
+            <p id="status-text">Ready</p>
+          </div>
+          <div id="chat-log" class="chat-log"></div>
+          <form id="chat-form" class="composer">
+            <textarea
+              id="user-input"
+              rows="3"
+              placeholder="输入你的任务，例如：请给出今天晚餐的 600kcal 低脂方案，并解释原因。"
+            ></textarea>
+            <div class="composer-actions">
+              <label class="stream-toggle">
+                <input id="stream-toggle" type="checkbox" checked />
+                <span>Stream</span>
+              </label>
+              <button id="send-btn" type="submit">Run Task</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel trace-panel">
+          <div class="panel-header">
+            <h2>Execution Trace</h2>
+          </div>
+          <div id="trace-log" class="trace-log"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/chat.js"></script>
+  </body>
+</html>

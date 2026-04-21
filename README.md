@@ -12,9 +12,10 @@
 | 业务能力 | 路由 | 说明 |
 | --- | --- | --- |
 | 多轮对话 · 流式输出 | `POST /chat`, `POST /chat/stream` | SSE 流式 token、带 `session_id` 的会话记忆 |
+| 会话管理 · 初步记忆 | `POST /chat/sessions`, `GET /chat/sessions/{id}` | 会话历史落地 JSONL，重启后可恢复最近上下文 |
 | 知识库 RAG 问答 | `POST /rag/ingest`, `POST /rag/query` | 文本分块 → 向量 → 余弦召回 → 带引用生成 |
 | 结构化抽取 · 函数调用 | `POST /extract` | 基于 JSON Schema 的强约束输出（简历 / 合同 / 工单） |
-| 运维接口 | `GET /health`, `GET /models` | 健康检查 + 本地模型清单 |
+| 运维接口 + 可视化验证 | `GET /health`, `GET /models`, `GET /ui/chat` | 健康检查 + 模型清单 + 可视化任务执行窗口 |
 
 所有请求走 **异步 + 并发信号量** 保护，默认为单卡 24 GB GPU 上运行 7B–8B 模型做过容量测算，
 不会把推理后端打爆。
@@ -83,6 +84,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 打开 `http://localhost:8000/docs` 查看交互式 OpenAPI 文档。
+打开 `http://localhost:8000/ui/chat` 可直接验证模型执行与流式输出。
 
 ### Docker Compose 一键部署
 
@@ -91,6 +93,48 @@ docker compose up -d
 docker exec -it ollama ollama pull qwen3:8b
 docker exec -it ollama ollama pull nomic-embed-text
 ```
+
+### npm 一键启动（新增）
+
+项目新增了可配置启动器：`startup.config.json` + `scripts/start.mjs`。
+
+```bash
+# 默认读取 startup.config.json（默认 local 模式）
+npm start
+
+# 强制本机模式
+npm run start:local
+
+# 强制 docker compose 编排模式
+npm run start:docker
+```
+
+配置文件示例（已内置在仓库根目录）：
+
+```json
+{
+  "mode": "local",
+  "ollama": {
+    "pullModels": ["qwen3:8b", "nomic-embed-text"]
+  },
+  "local": {
+    "autoInstallDeps": true,
+    "autoStartOllama": true,
+    "autoPullModels": true,
+    "uvicornPort": 8000
+  },
+  "docker": {
+    "composeFile": "docker-compose.yml",
+    "detached": true,
+    "autoPullModels": true
+  }
+}
+```
+
+说明：
+- `mode=local`：自动写入 `.env`、可自动建 `.venv`、安装依赖、拉模型并启动 `uvicorn`
+- `mode=docker`：走 `docker compose` 编排并自动在 `ollama` 容器内拉模型
+- 若你已经有独立运行的 Ollama，可继续用 `local`；若希望 API + Ollama 全容器化再用 `docker`
 
 ## 4. 调用示例
 
@@ -104,6 +148,20 @@ curl -N -X POST http://localhost:8000/chat/stream \
     "messages": [{"role": "user", "content": "用三句话解释 RAG"}]
   }'
 ```
+
+### 可视化对话窗口（任务执行验证）
+
+浏览器打开：
+
+```text
+http://localhost:8000/ui/chat
+```
+
+窗口能力：
+- 直接输入用户 query 并观察实时 token 流式输出
+- 一键新建 `session_id`
+- 用 `session_id` 重新加载历史对话
+- 对话历史自动写入 `data/sessions/*.jsonl`（MVP 级持久化记忆）
 
 ### 知识库 RAG
 
@@ -171,6 +229,11 @@ curl -X POST http://localhost:8000/extract \
 | 反代 | — | Nginx / Caddy（注意关 `proxy_buffering` 保活 SSE） |
 
 同一套路由与 schema 可以无缝从单机部署演进到多机房多租户部署。
+
+### 6.1 业务场景文档（已拆分）
+
+- Dify 场景（原 174-236 行内容已迁移）：`docs/dify-app-scenario/README.md`
+- 你的网站场景（Calorie-Calculator 的 Ollama + FastAPI MVP）：`docs/calorie-site-ollama-fastapi-mvp/README.md`
 
 ---
 

@@ -21,6 +21,15 @@ class ChatResponse(BaseModel):
     usage: dict[str, int] = Field(default_factory=dict)
 
 
+class SessionCreateResponse(BaseModel):
+    session_id: str
+
+
+class SessionHistoryResponse(BaseModel):
+    session_id: str
+    messages: list[ChatMessage]
+
+
 class IngestDoc(BaseModel):
     id: str | None = None
     text: str
